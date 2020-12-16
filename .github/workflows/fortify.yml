@@ -1,12 +1,7 @@
-# This workflow will build a Java project with Maven
-# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
-
-name: Java CI with Maven
+name: FoD static analysis with upload to GitHub
 
 on:
   workflow_dispatch:
-  push:
-    branches: [ main ]
 
 jobs:
   build:
@@ -30,7 +25,7 @@ jobs:
       env:
         PACKAGE_OPTS: "-bt mvn"
     - name: Upload to FoD
-      run: java -jar $FOD_UPLOAD_JAR -uc $FOD_USER $FOD_PAT -rid $FOD_RID -purl $FOD_PURL -aurl $FOD_AURL -z package.zip -tc $FOD_TENANT -ep 2 -I 1
+      run: java -jar $FOD_UPLOAD_JAR -apf -uc $FOD_USER $FOD_PAT -rid $FOD_RID -purl $FOD_PURL -aurl $FOD_AURL -z package.zip -tc $FOD_TENANT -ep 2 -I 1
       env:
         FOD_USER: ${{ secrets.FOD_USER }}
         FOD_PAT: ${{ secrets.FOD_PAT }}
@@ -38,5 +33,17 @@ jobs:
         FOD_PURL: ${{ secrets.FOD_PURL }}
         FOD_AURL: ${{ secrets.FOD_AURL }}
         FOD_TENANT: ${{ secrets.FOD_TENANT }}
- 
-    
+    - name: Getting FoD results in SARIF format through Fortify Vulnerability Exporter
+      uses: docker://fortifydocker/fortify-vulnerability-exporter:latest
+      with:
+        export_config: /config/FoDToGitHub.yml
+        fod_baseUrl: ${{ secrets.FOD_AURL }}
+        fod_tenant: ${{ secrets.FOD_TENANT }}
+        fod_userName: ${{ secrets.FOD_USER }}
+        fod_password: ${{ secrets.FOD_PAT }}
+        fod_release_id: ${{ secrets.FOD_RID }}
+    - name: Uploading SARIF results into GitHub
+      uses: github/codeql-action/upload-sarif@v1
+      with:
+        sarif_file: ./gh-fortify-sast.sarif 
+  
