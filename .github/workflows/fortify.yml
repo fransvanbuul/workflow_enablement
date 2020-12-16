@@ -15,8 +15,25 @@ jobs:
 
     steps:
 
+    - name: Download Fortify on Demand Universal CI Tool
+      uses: fortify/gha-setup-fod-uploader@v1
+    - name: Download Fortify ScanCentral Client
+      uses: fortify/gha-setup-scancentral-client@v1
+        
     - name: Checkout the source code
       uses: actions/checkout@v2
 
     - name: Build with Maven
       run: mvn -B package --file pom.xml
+    - name: Package Code + Dependencies
+      run: scancentral package $PACKAGE_OPTS -o package.zip
+      env:
+        PACKAGE_OPTS: "-bt mvn"
+        
+    - name: Upload package.zip for verification; necessary for debug only
+      uses: actions/upload-artifact@v2
+      with:
+        name: package.zip
+        path: package.zip        
+     
+    
