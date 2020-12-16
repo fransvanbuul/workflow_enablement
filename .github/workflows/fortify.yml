@@ -29,11 +29,14 @@ jobs:
       run: scancentral package $PACKAGE_OPTS -o package.zip
       env:
         PACKAGE_OPTS: "-bt mvn"
-        
-    - name: Upload package.zip for verification; necessary for debug only
-      uses: actions/upload-artifact@v2
-      with:
-        name: package.zip
-        path: package.zip        
-     
+    - name: Upload to FoD
+      run: java -jar $FOD_UPLOAD_JAR -uc $FOD_USER $FOD_PAT -rid $FOD_RID -purl $FOD_PURL -aurl $FOD_AURL -z package.zip -tc $FOD_TENANT -ep 2 -I 1
+      env:
+        FOD_USER: ${{ secrets.FOD_USER }}
+        FOD_PAT: ${{ secrets.FOD_PAT }}
+        FOD_RID: ${{ secrets.FOD_RID }}
+        FOD_PURL: ${{ secrets.FOD_PURL }}
+        FOD_AURL: ${{ secrets.FOD_AURL }}
+        FOD_TENANT: ${{ secrets.FOD_TENANT }}
+ 
     
