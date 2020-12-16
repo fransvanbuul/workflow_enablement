@@ -25,7 +25,7 @@ jobs:
       env:
         PACKAGE_OPTS: "-bt mvn"
     - name: Upload to FoD
-      run: java -jar $FOD_UPLOAD_JAR -apf -uc $FOD_USER $FOD_PAT -rid $FOD_RID -purl $FOD_PURL -aurl $FOD_AURL -z package.zip -tc $FOD_TENANT -ep 2 -I 1
+      run: java -jar $FOD_UPLOAD_JAR -uc $FOD_USER $FOD_PAT -rid $FOD_RID -purl $FOD_PURL -aurl $FOD_AURL -z package.zip -tc $FOD_TENANT -ep 2 -I 1
       env:
         FOD_USER: ${{ secrets.FOD_USER }}
         FOD_PAT: ${{ secrets.FOD_PAT }}
